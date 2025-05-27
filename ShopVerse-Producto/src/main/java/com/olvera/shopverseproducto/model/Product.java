@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Document(collection = "products")
 @Data
@@ -30,4 +31,6 @@ public class Product {
     private String imageUrl;
 
     private Boolean isActive;
+
+    private LocalDateTime createdAt;
 }
