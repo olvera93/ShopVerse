@@ -1,9 +1,49 @@
 package com.olvera.shopverseproducto.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.olvera.shopverseproducto.dto.ErrorResponseDto;
+import com.olvera.shopverseproducto.dto.ProductRequestDto;
+import com.olvera.shopverseproducto.dto.ProductResponseDto;
+import com.olvera.shopverseproducto.service.IProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/v1/")
+@RequestMapping(path = "/api/v1/", produces = (MediaType.APPLICATION_JSON_VALUE))
+@Validated
+@CrossOrigin("*")
 public class ProductController {
+
+    @Autowired
+    private IProductService productService;
+
+    @Operation(
+            summary = "Create a new product",
+            description = "You can save a product"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @PostMapping(value = "/createProduct")
+    public ResponseEntity<ProductResponseDto> createProduct(
+            @Valid
+            @RequestBody
+            ProductRequestDto requestDto
+    ) {
+        ProductResponseDto result = productService.createProduct(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
 }
