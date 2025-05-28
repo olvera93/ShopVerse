@@ -20,5 +20,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven
-        run: mvn -B package --file ShopVerse-Producto/pom.xml
+      - name: Build and run tests with Maven
+        run: mvn --batch-mode verify --file ShopVerse-Producto/pom.xml
+
+      - name: Display test results
+        if: failure()
+        run: |
+          echo "==== TEST FAILURES ===="
+          find ShopVerse-Producto/target/surefire-reports -name '*.txt' -exec cat {} +
