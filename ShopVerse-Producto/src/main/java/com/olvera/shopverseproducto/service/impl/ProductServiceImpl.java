@@ -22,16 +22,12 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductResponseDto createProduct(ProductRequestDto requestDto) {
 
-        Product product = productRepository.findByName(requestDto.getName()).orElseThrow(
-                () -> {
-                    log.error("Error a product exists with same name");
-                    return new ResourceAlreadyExist("Product", "name", requestDto.getName());
-                }
-        );
+        if (productRepository.findByName(requestDto.getName()).isPresent()) {
+            log.error("Error: a product exists with same name");
+            throw new ResourceAlreadyExist("Product", "name", requestDto.getName());
+        }
 
-        product.setCreatedAt(LocalDateTime.now());
-
-        product = Product.builder()
+        Product product = Product.builder()
                 .name(requestDto.getName())
                 .description(requestDto.getDescription())
                 .price(requestDto.getPrice())
@@ -41,6 +37,7 @@ public class ProductServiceImpl implements IProductService {
                 .isActive(requestDto.getIsActive())
                 .build();
 
+        product.setCreatedAt(LocalDateTime.now());
 
         productRepository.save(product);
         log.info("Product was saving successfully: {}", product);
