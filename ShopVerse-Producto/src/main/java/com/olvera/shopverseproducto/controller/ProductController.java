@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "CRUD REST APIs for Appointments",
+        description = "CRUD REST APIs in Appointments to CREATE, UPDATE, FETCH AND DELETE card details"
+)
 @RestController
 @RequestMapping(path = "/api/v1/", produces = (MediaType.APPLICATION_JSON_VALUE))
 @Validated
@@ -37,7 +42,7 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping(value = "/createProduct")
+    @PostMapping(value = "createProduct")
     public ResponseEntity<ProductResponseDto> createProduct(
             @Valid
             @RequestBody
@@ -46,4 +51,7 @@ public class ProductController {
         ProductResponseDto result = productService.createProduct(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
+
+    /*@GetMapping("products?category=Electronics")
+    public*/
 }

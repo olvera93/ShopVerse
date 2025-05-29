@@ -41,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest webRequest) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 webRequest.getDescription(false),
-                HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 exception.getMessage(),
                 LocalDateTime.now()
         );
@@ -49,18 +49,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponseDto, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
     @ExceptionHandler(ResourceAlreadyExist.class)
     public ResponseEntity<ErrorResponseDto> handleResourceAlreadyExist(Exception exception, WebRequest webRequest) {
 
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 webRequest.getDescription(false),
-                HttpStatus.CONFLICT,
+                HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
                 LocalDateTime.now()
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.CONFLICT);
     }
-
 
 }
