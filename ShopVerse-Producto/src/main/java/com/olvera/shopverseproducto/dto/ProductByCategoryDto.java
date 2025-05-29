@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 )
 public class ProductByCategoryDto {
 
+    private String productId;
+
     @Schema(description = "Name of product", example = "LG 34'")
     @NotNull(message = "Name cannot be null or empty")
     @Size(min = 3, max = 30)
@@ -43,6 +45,8 @@ public class ProductByCategoryDto {
     @Schema(description = "Image of product", example = "https://LG_34.com")
     @NotNull(message = "Image cannot be null or empty")
     private String imageUrl;
+
+    private String category;
 
     private Boolean isActive;
 }

@@ -1,6 +1,7 @@
 package com.olvera.shopverseproducto.controller;
 
 import com.olvera.shopverseproducto.dto.ErrorResponseDto;
+import com.olvera.shopverseproducto.dto.PageResponse;
 import com.olvera.shopverseproducto.dto.ProductRequestDto;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.service.IProductService;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import static com.olvera.shopverseproducto.util.AppConstants.*;
 
 @Tag(
         name = "CRUD REST APIs for Appointments",
@@ -52,6 +55,21 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    /*@GetMapping("products?category=Electronics")
-    public*/
+    @Operation(
+            summary = "Get products by category",
+            description = "You can get all products for a category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @GetMapping("products")
+    public ResponseEntity<PageResponse> getProductsByCategory(
+            @RequestParam(value = "category", defaultValue = "ELECTRONIC", required = false) String category,
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize
+    ) {
+        PageResponse result = productService.getProductsByCategory(category, pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

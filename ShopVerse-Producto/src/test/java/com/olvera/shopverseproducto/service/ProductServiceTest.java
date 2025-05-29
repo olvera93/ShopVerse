@@ -1,5 +1,6 @@
 package com.olvera.shopverseproducto.service;
 
+import com.olvera.shopverseproducto.dto.PageResponse;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
 import com.olvera.shopverseproducto.model.Product;
@@ -8,11 +9,15 @@ import com.olvera.shopverseproducto.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +54,45 @@ public class ProductServiceTest extends AbstractServiceTest {
 
         verify(productRepository).findByName(productRequestDto.getName());
         verify(productRepository, never()).save(any());
+    }
+
+    @Test
+    void getProductByCategory_WhenCategoryDoesNotExists() {
+        category = "GROCERIES";
+        pageNo = 0;
+        pageSize = 10;
+
+        List<Product> emptyProductList = List.of();
+        Page<Product> emptyProductPage = new PageImpl<>(emptyProductList, PageRequest.of(pageNo, pageSize), 0);
+
+        when(productRepository.findByCategory(eq(category), any(Pageable.class)))
+                .thenReturn(emptyProductPage);
+
+        PageResponse pageResponse = productService.getProductsByCategory(category, pageNo, pageSize);
+
+        assertEquals(0, pageResponse.getContent().size());
+        assertEquals(0, pageResponse.getTotalElements());
+        assertEquals(0, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
+    }
+
+    @Test
+    void getProductByCategory_WhenThereAreMultiplePages() {
+        pageNo = 0;
+        pageSize = 1;
+
+        List<Product> productList = List.of(product);
+        Page<Product> productPage = new PageImpl<>(productList, PageRequest.of(pageNo, pageSize), 1);
+
+        when(productRepository.findByCategory(eq(category), any(Pageable.class)))
+                .thenReturn(productPage);
+
+        PageResponse pageResponse = productService.getProductsByCategory(category, pageNo, pageSize);
+
+        assertEquals(1, pageResponse.getContent().size());
+        assertEquals(1, pageResponse.getTotalElements());
+        assertEquals(1, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
     }
 
 }
