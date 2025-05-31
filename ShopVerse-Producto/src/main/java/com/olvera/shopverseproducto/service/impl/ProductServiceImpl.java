@@ -1,5 +1,7 @@
 package com.olvera.shopverseproducto.service.impl;
 
+import com.olvera.shopverseproducto.dto.PageResponse;
+import com.olvera.shopverseproducto.dto.ProductByCategoryDto;
 import com.olvera.shopverseproducto.dto.ProductRequestDto;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
@@ -8,9 +10,15 @@ import com.olvera.shopverseproducto.repository.ProductRepository;
 import com.olvera.shopverseproducto.service.IProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -44,6 +52,43 @@ public class ProductServiceImpl implements IProductService {
 
         return ProductResponseDto.builder()
                 .statusMsg("Product was creating successfully!!")
+                .build();
+    }
+
+    @Override
+    public PageResponse getProductsByCategory(String category, int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Product> products;
+
+        if (category == null || category.isBlank()) {
+            products = productRepository.findAll(pageable);
+        } else {
+            products = productRepository.findByCategory(category, pageable);
+        }
+
+        List<ProductByCategoryDto> productByCategoryList = products.getContent()
+                .stream()
+                .map(this::mapToProduct)
+                .toList();
+
+        return new PageResponse(
+                productByCategoryList,
+                products.getNumber(),
+                products.getSize(),
+                products.getTotalElements(),
+                products.getTotalPages(),
+                products.isLast()
+        );
+    }
+
+    private ProductByCategoryDto mapToProduct(Product product) {
+        return ProductByCategoryDto.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .category(product.getCategory())
                 .build();
     }
 }

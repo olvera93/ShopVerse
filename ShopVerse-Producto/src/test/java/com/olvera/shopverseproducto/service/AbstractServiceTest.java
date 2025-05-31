@@ -1,5 +1,6 @@
 package com.olvera.shopverseproducto.service;
 
+import com.olvera.shopverseproducto.dto.ProductByCategoryDto;
 import com.olvera.shopverseproducto.dto.ProductRequestDto;
 import com.olvera.shopverseproducto.model.Product;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +19,24 @@ public class AbstractServiceTest {
 
     protected String productId;
 
+    protected ProductByCategoryDto productByCategoryDto;
+
+    protected String category;
+
+    protected int pageNo;
+
+    protected int pageSize;
+
     @BeforeEach
     public void prepare() {
 
         productId = "UUID1234";
+
+        category = "ELECTRONICS";
+
+        pageNo = 5;
+
+        pageSize = 10;
 
         product = Product.builder()
                 .productId(productId)
@@ -45,6 +60,14 @@ public class AbstractServiceTest {
                 .isActive(true)
                 .build();
 
-
+        productByCategoryDto = ProductByCategoryDto.builder()
+                .productId(productId)
+                .name("iPhone 16")
+                .description("it is the best mobile phone in the world")
+                .price(BigDecimal.valueOf(1300.00))
+                .stock(30)
+                .category("ELECTRONIC")
+                .isActive(true)
+                .build();
     }
 }

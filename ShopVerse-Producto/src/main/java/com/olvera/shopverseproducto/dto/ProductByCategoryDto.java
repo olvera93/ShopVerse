@@ -1,6 +1,5 @@
 package com.olvera.shopverseproducto.dto;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -19,7 +18,9 @@ import java.math.BigDecimal;
         name = "Products",
         description = "Schema to hold Product information"
 )
-public class ProductRequestDto {
+public class ProductByCategoryDto {
+
+    private String productId;
 
     @Schema(description = "Name of product", example = "LG 34'")
     @NotNull(message = "Name cannot be null or empty")
@@ -41,14 +42,11 @@ public class ProductRequestDto {
     @Min(value = 0, message = "Stock cannot have less to 0")
     private Integer stock;
 
-    @Schema(description = "Category of product", example = "ELECTRONIC")
-    @NotNull(message = "Category cannot be null or empty")
-    private String category;
-
     @Schema(description = "Image of product", example = "https://LG_34.com")
     @NotNull(message = "Image cannot be null or empty")
     private String imageUrl;
 
-    private Boolean isActive;
+    private String category;
 
+    private Boolean isActive;
 }
