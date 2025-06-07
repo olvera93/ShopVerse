@@ -106,6 +106,33 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.last").value(true));
     }
 
+    @Test
+    void shouldUpdateProduct_WhenProductExists() throws Exception {
+
+        String productId = "12345";
+        ProductRequestDto requestDto = ProductRequestDto.builder()
+                .name("Updated Product")
+                .description("This is an updated product")
+                .price(BigDecimal.valueOf(89.99))
+                .stock(50)
+                .category("Electronics")
+                .imageUrl("http://example.com/updated-image.jpg")
+                .isActive(true)
+                .build();
+
+        ProductResponseDto responseDto = ProductResponseDto.builder()
+                .statusMsg("Product was updated successfully!!")
+                .build();
+
+        when(productService.updateProduct(productId, requestDto)).thenReturn(responseDto);
+
+        mockMvc.perform(put("/api/v1/updateProduct/{productId}", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusMsg").value("Product was updated successfully!!"));
+    }
+
 
     @TestConfiguration
     static class TestConfig {

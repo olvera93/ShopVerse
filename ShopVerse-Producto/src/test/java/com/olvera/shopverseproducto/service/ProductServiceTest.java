@@ -3,6 +3,7 @@ package com.olvera.shopverseproducto.service;
 import com.olvera.shopverseproducto.dto.PageResponse;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
+import com.olvera.shopverseproducto.exception.ResourceNotFound;
 import com.olvera.shopverseproducto.model.Product;
 import com.olvera.shopverseproducto.repository.ProductRepository;
 import com.olvera.shopverseproducto.service.impl.ProductServiceImpl;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ProductServiceTest extends AbstractServiceTest {
+class ProductServiceTest extends AbstractServiceTest {
 
     @InjectMocks
     private ProductServiceImpl productService;
@@ -95,4 +96,29 @@ public class ProductServiceTest extends AbstractServiceTest {
         assertTrue(pageResponse.isLast());
     }
 
+    @Test
+    void updateProduct_ShouldUpdateSuccessfully_WhenProductExists() {
+        String productId = "12345";
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        when(productRepository.save(any(Product.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProductResponseDto responseDto = productService.updateProduct(productId, productRequestDto);
+
+        assertEquals("Product was updating successfully!!", responseDto.getStatusMsg());
+        verify(productRepository).findById(productId);
+        verify(productRepository).save(any(Product.class));
+    }
+
+    @Test
+    void updateProduct_ShouldThrowResourceNotFound_WhenProductDoesNotExist() {
+        String productId = "12345";
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFound.class, () -> productService.updateProduct(productId, productRequestDto));
+
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).save(any());
+    }
 }

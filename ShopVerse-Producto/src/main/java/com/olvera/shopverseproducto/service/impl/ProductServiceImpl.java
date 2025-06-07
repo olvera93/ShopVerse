@@ -5,6 +5,7 @@ import com.olvera.shopverseproducto.dto.ProductByCategoryDto;
 import com.olvera.shopverseproducto.dto.ProductRequestDto;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
+import com.olvera.shopverseproducto.exception.ResourceNotFound;
 import com.olvera.shopverseproducto.model.Product;
 import com.olvera.shopverseproducto.repository.ProductRepository;
 import com.olvera.shopverseproducto.service.IProductService;
@@ -80,6 +81,31 @@ public class ProductServiceImpl implements IProductService {
                 products.getTotalPages(),
                 products.isLast()
         );
+    }
+
+    @Override
+    public ProductResponseDto updateProduct(String productId, ProductRequestDto requestDto) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFound("The product with id: " + productId + " was not found"));
+
+        product.setName(requestDto.getName());
+        product.setDescription(requestDto.getDescription());
+        product.setPrice(requestDto.getPrice());
+        product.setStock(requestDto.getStock());
+        product.setCategory(requestDto.getCategory());
+        product.setImageUrl(requestDto.getImageUrl());
+        product.setIsActive(requestDto.getIsActive());
+        product.setUpdatedAt(LocalDateTime.now());
+
+        product.setUpdatedAt(LocalDateTime.now());
+
+        productRepository.save(product);
+        log.info("Product was updating successfully: {}", product);
+
+        return ProductResponseDto.builder()
+                .statusMsg("Product was updating successfully!!")
+                .build();
     }
 
     private ProductByCategoryDto mapToProduct(Product product) {
