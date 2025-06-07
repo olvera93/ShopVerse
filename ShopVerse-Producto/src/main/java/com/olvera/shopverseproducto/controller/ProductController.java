@@ -72,4 +72,24 @@ public class ProductController {
         PageResponse result = productService.getProductsByCategory(category, pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @Operation(
+            summary = "Update a product",
+            description = "You can update a product by ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @PutMapping("updateProduct/{productId}")
+    public ResponseEntity<ProductResponseDto> updateProduct(
+            @PathVariable String productId,
+            @Valid
+            @RequestBody ProductRequestDto requestDto
+    ) {
+        ProductResponseDto result = productService.updateProduct(productId, requestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }
