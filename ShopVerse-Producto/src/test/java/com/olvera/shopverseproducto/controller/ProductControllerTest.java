@@ -133,6 +133,24 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.statusMsg").value("Product was updated successfully!!"));
     }
 
+    @Test
+    void shouldDeactivateProduct_WhenProductExists() throws Exception {
+        String productId = "12345";
+
+        ProductResponseDto responseDto = ProductResponseDto.builder()
+                .statusMsg("Product was deactivated successfully!!")
+                .statusCode("200")
+                .build();
+
+        when(productService.deactivateProduct(productId)).thenReturn(responseDto);
+
+        mockMvc.perform(patch("/api/v1/deactivateProduct/{productId}", productId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusMsg").value("Product was deactivated successfully!!"))
+                .andExpect(jsonPath("$.statusCode").value("200"));
+    }
+
+
 
     @TestConfiguration
     static class TestConfig {

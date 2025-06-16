@@ -121,4 +121,30 @@ class ProductServiceTest extends AbstractServiceTest {
         verify(productRepository).findById(productId);
         verify(productRepository, never()).save(any());
     }
+
+    @Test
+    void deactivateProduct_ShouldDeactivateSuccessfully_WhenProductExists() {
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        when(productRepository.save(any(Product.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProductResponseDto responseDto = productService.deactivateProduct(productId);
+
+        assertEquals("Product was deactivated successfully!!", responseDto.getStatusMsg());
+        verify(productRepository).findById(productId);
+        verify(productRepository).save(any(Product.class));
+    }
+
+    @Test
+    void deactivateProduct_ShouldThrowResourceNotFound_WhenProductDoesNotExist() {
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFound.class, () -> productService.deactivateProduct(productId));
+
+        verify(productRepository).findById(productId);
+        verify(productRepository, never()).save(any());
+    }
 }

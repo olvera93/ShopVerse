@@ -12,4 +12,6 @@ public interface IProductService {
 
     ProductResponseDto updateProduct(String productId, ProductRequestDto requestDto);
 
+    ProductResponseDto deactivateProduct(String productId);
+
 }

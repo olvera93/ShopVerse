@@ -65,7 +65,7 @@ public class ProductController {
     })
     @GetMapping("products")
     public ResponseEntity<PageResponse> getProductsByCategory(
-            @RequestParam(value = "category", defaultValue = "ELECTRONIC", required = false) String category,
+            @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize
     ) {
@@ -92,4 +92,23 @@ public class ProductController {
         ProductResponseDto result = productService.updateProduct(productId, requestDto);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+
+    @Operation(
+            summary = "Deactivate a product",
+            description = "Deactivates a product by its ID (soft delete)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product deactivated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @PatchMapping("/deactivateProduct/{productId}")
+    public ResponseEntity<ProductResponseDto> deactivateProduct(
+            @PathVariable String productId
+    ) {
+        ProductResponseDto result = productService.deactivateProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }

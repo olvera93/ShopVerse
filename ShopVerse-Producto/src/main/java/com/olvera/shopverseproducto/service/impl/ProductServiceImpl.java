@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -108,6 +106,30 @@ public class ProductServiceImpl implements IProductService {
                 .build();
     }
 
+    @Override
+    public ProductResponseDto deactivateProduct(String productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFound("The product with id: " + productId + " was not found"));
+
+        if (!product.getIsActive()) {
+            return ProductResponseDto.builder()
+                    .statusMsg("Product is already deactivated.")
+                    .statusCode("200")
+                    .build();
+        }
+
+        product.setIsActive(false);
+        product.setUpdatedAt(LocalDateTime.now());
+        product.setStock(product.getStock() - 1);
+        productRepository.save(product);
+        log.info("Product was deactivated successfully: {}", product);
+
+        return ProductResponseDto.builder()
+                .statusMsg("Product was deactivated successfully!!")
+                .statusCode("200")
+                .build();
+    }
+
     private ProductByCategoryDto mapToProduct(Product product) {
         return ProductByCategoryDto.builder()
                 .productId(product.getProductId())
@@ -115,6 +137,9 @@ public class ProductServiceImpl implements IProductService {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .category(product.getCategory())
+                .stock(product.getStock())
+                .imageUrl(product.getImageUrl())
+                .isActive(product.getIsActive())
                 .build();
     }
 }
