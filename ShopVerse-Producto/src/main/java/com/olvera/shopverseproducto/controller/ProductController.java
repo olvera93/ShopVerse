@@ -65,11 +65,50 @@ public class ProductController {
     })
     @GetMapping("products")
     public ResponseEntity<PageResponse> getProductsByCategory(
-            @RequestParam(value = "category", defaultValue = "ELECTRONIC", required = false) String category,
+            @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize
     ) {
         PageResponse result = productService.getProductsByCategory(category, pageNo, pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @Operation(
+            summary = "Update a product",
+            description = "You can update a product by ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @PutMapping("updateProduct/{productId}")
+    public ResponseEntity<ProductResponseDto> updateProduct(
+            @PathVariable String productId,
+            @Valid
+            @RequestBody ProductRequestDto requestDto
+    ) {
+        ProductResponseDto result = productService.updateProduct(productId, requestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+
+    @Operation(
+            summary = "Deactivate a product",
+            description = "Deactivates a product by its ID (soft delete)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product deactivated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @PatchMapping("/deactivateProduct/{productId}")
+    public ResponseEntity<ProductResponseDto> deactivateProduct(
+            @PathVariable String productId
+    ) {
+        ProductResponseDto result = productService.deactivateProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
 }

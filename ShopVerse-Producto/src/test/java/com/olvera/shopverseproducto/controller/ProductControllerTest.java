@@ -106,6 +106,51 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.last").value(true));
     }
 
+    @Test
+    void shouldUpdateProduct_WhenProductExists() throws Exception {
+
+        String productId = "12345";
+        ProductRequestDto requestDto = ProductRequestDto.builder()
+                .name("Updated Product")
+                .description("This is an updated product")
+                .price(BigDecimal.valueOf(89.99))
+                .stock(50)
+                .category("Electronics")
+                .imageUrl("http://example.com/updated-image.jpg")
+                .isActive(true)
+                .build();
+
+        ProductResponseDto responseDto = ProductResponseDto.builder()
+                .statusMsg("Product was updated successfully!!")
+                .build();
+
+        when(productService.updateProduct(productId, requestDto)).thenReturn(responseDto);
+
+        mockMvc.perform(put("/api/v1/updateProduct/{productId}", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusMsg").value("Product was updated successfully!!"));
+    }
+
+    @Test
+    void shouldDeactivateProduct_WhenProductExists() throws Exception {
+        String productId = "12345";
+
+        ProductResponseDto responseDto = ProductResponseDto.builder()
+                .statusMsg("Product was deactivated successfully!!")
+                .statusCode("200")
+                .build();
+
+        when(productService.deactivateProduct(productId)).thenReturn(responseDto);
+
+        mockMvc.perform(patch("/api/v1/deactivateProduct/{productId}", productId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusMsg").value("Product was deactivated successfully!!"))
+                .andExpect(jsonPath("$.statusCode").value("200"));
+    }
+
+
 
     @TestConfiguration
     static class TestConfig {
