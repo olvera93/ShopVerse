@@ -1,5 +1,7 @@
 package com.olvera.shopverseproducto.service;
 
+import com.olvera.shopverseproducto.config.LogProducer;
+import com.olvera.shopverseproducto.dto.LogEventDto;
 import com.olvera.shopverseproducto.dto.PageResponse;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
@@ -29,6 +31,9 @@ class ProductServiceTest extends AbstractServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private LogProducer logProducer;
 
     @Test
     void createProduct_ShouldCreateSuccessfully_WhenProductDoesNotExist() {
@@ -135,6 +140,7 @@ class ProductServiceTest extends AbstractServiceTest {
         assertEquals("Product was deactivated successfully!!", responseDto.getStatusMsg());
         verify(productRepository).findById(productId);
         verify(productRepository).save(any(Product.class));
+        verify(logProducer).sendLog(any(LogEventDto.class));
     }
 
     @Test
