@@ -143,6 +143,35 @@ public class ProductServiceImpl implements IProductService {
                 .build();
     }
 
+    @Override
+    public ProductDetailDto getProductDetail(String productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFound("The product with id: " + productId + " was not found")
+        );
+
+        log.info("Product detail retrieved successfully: {}", product);
+
+        logProducer.sendLog(LogEventDto.builder()
+                .level("INFO")
+                .serviceName("Product detail retrieval")
+                .message("Product detail retrieved successfully: " + product.getName())
+                .timestamp(LocalDateTime.now())
+                .path("/api/v1/products/" + productId)
+                .build());
+
+        return ProductDetailDto.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .category(product.getCategory())
+                .imageUrl(product.getImageUrl())
+                .isActive(product.getIsActive())
+                .build();
+    }
+
 
     private ProductByCategoryDto mapToProduct(Product product) {
         return ProductByCategoryDto.builder()
