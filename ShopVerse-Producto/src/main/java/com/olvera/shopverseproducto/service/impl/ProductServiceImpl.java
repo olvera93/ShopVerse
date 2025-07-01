@@ -1,9 +1,7 @@
 package com.olvera.shopverseproducto.service.impl;
 
-import com.olvera.shopverseproducto.dto.PageResponse;
-import com.olvera.shopverseproducto.dto.ProductByCategoryDto;
-import com.olvera.shopverseproducto.dto.ProductRequestDto;
-import com.olvera.shopverseproducto.dto.ProductResponseDto;
+import com.olvera.shopverseproducto.config.LogProducer;
+import com.olvera.shopverseproducto.dto.*;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
 import com.olvera.shopverseproducto.exception.ResourceNotFound;
 import com.olvera.shopverseproducto.model.Product;
@@ -25,6 +23,9 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private LogProducer logProducer;
 
     @Override
     public ProductResponseDto createProduct(ProductRequestDto requestDto) {
@@ -111,7 +112,7 @@ public class ProductServiceImpl implements IProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFound("The product with id: " + productId + " was not found"));
 
-        if (!product.getIsActive()) {
+        if (Boolean.FALSE.equals(product.getIsActive())) {
             return ProductResponseDto.builder()
                     .statusMsg("Product is already deactivated.")
                     .statusCode("200")
@@ -120,15 +121,28 @@ public class ProductServiceImpl implements IProductService {
 
         product.setIsActive(false);
         product.setUpdatedAt(LocalDateTime.now());
-        product.setStock(product.getStock() - 1);
+
+        int stock = product.getStock() != null ? product.getStock() : 0;
+        product.setStock(Math.max(stock - 1, 0));
+
         productRepository.save(product);
+
         log.info("Product was deactivated successfully: {}", product);
+
+        logProducer.sendLog(LogEventDto.builder()
+                .level("INFO")
+                .serviceName("Product deactivation")
+                .message("Product was deactivated successfully: " + product.getName())
+                .timestamp(LocalDateTime.now())
+                .path("/api/v1/deactivate/" + productId)
+                .build());
 
         return ProductResponseDto.builder()
                 .statusMsg("Product was deactivated successfully!!")
                 .statusCode("200")
                 .build();
     }
+
 
     private ProductByCategoryDto mapToProduct(Product product) {
         return ProductByCategoryDto.builder()
