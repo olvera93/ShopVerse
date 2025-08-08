@@ -172,6 +172,32 @@ public class ProductServiceImpl implements IProductService {
                 .build();
     }
 
+    @Override
+    public PageResponse getProductsByIsActive(Boolean isActive, int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        if (isActive == null) {
+            isActive = true;
+        }
+
+        Page<Product> products = productRepository.findByIsActive(isActive, pageable);
+
+        List<ProductByCategoryDto> productByCategoryList = products.getContent()
+                .stream()
+                .map(this::mapToProduct)
+                .toList();
+
+        return new PageResponse(
+                productByCategoryList,
+                products.getNumber(),
+                products.getSize(),
+                products.getTotalElements(),
+                products.getTotalPages(),
+                products.isLast()
+        );
+    }
+
 
     private ProductByCategoryDto mapToProduct(Product product) {
         return ProductByCategoryDto.builder()

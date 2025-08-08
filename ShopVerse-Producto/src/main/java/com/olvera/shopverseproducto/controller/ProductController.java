@@ -124,4 +124,22 @@ public class ProductController {
         ProductDetailDto result = productService.getProductDetail(productId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @Operation(
+            summary = "Get products by isActive in true",
+            description = "You can get all products activated")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @GetMapping("product")
+    public ResponseEntity<PageResponse> getProductsIsActive(
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize
+    ) {
+        PageResponse result = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

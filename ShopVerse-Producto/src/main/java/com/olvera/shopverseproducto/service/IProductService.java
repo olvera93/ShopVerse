@@ -17,4 +17,6 @@ public interface IProductService {
 
     ProductDetailDto getProductDetail(String productId);
 
+    PageResponse getProductsByIsActive(Boolean isActive, int pageNo, int pageSize);
+
 }

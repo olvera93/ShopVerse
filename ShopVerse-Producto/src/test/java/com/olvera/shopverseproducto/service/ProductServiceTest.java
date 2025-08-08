@@ -180,4 +180,45 @@ class ProductServiceTest extends AbstractServiceTest {
 
         verify(productRepository).findById(productId);
     }
+
+    @Test
+    void getProductByIsActive_InTrue_WhenThereAreMultiplePages(){
+        pageNo = 0;
+        pageSize = 1;
+
+        List<Product> products = List.of(product);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(pageNo, pageSize), 1);
+
+        when(productRepository.findByIsActive(eq(isActive), any(Pageable.class))).thenReturn(productPage);
+
+        PageResponse pageResponse = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+
+        assertEquals(1, pageResponse.getContent().size());
+        assertEquals(1, pageResponse.getTotalElements());
+        assertEquals(1, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
+    }
+
+    @Test
+    void getProductByIsActive_InFalse_WhenThereAreMultiplePages(){
+        pageNo = 0;
+        pageSize = 1;
+
+        isActive = false;
+
+        List<Product> products = List.of(product);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(pageNo, pageSize), 1);
+
+        when(productRepository.findByIsActive(eq(isActive), any(Pageable.class))).thenReturn(productPage);
+
+        PageResponse pageResponse = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+
+        assertEquals(1, pageResponse.getContent().size());
+        assertEquals(1, pageResponse.getTotalElements());
+        assertEquals(1, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
+    }
+
+
+
 }

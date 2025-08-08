@@ -24,6 +24,8 @@ public class AbstractServiceTest {
 
     protected String category;
 
+    protected Boolean isActive;
+
     protected int pageNo;
 
     protected int pageSize;
@@ -36,6 +38,8 @@ public class AbstractServiceTest {
         productId = "UUID1234";
 
         category = "ELECTRONICS";
+
+        isActive = true;
 
         pageNo = 5;
 
