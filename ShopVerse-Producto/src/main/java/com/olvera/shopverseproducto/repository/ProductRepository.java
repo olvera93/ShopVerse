@@ -14,4 +14,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     Optional<Product> findByName(String name);
 
     Page<Product> findByCategory(String category, Pageable pageable);
+
+    Page<Product> findByIsActive(Boolean isActive, Pageable pageable);
 }

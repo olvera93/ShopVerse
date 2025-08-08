@@ -143,6 +143,61 @@ public class ProductServiceImpl implements IProductService {
                 .build();
     }
 
+    @Override
+    public ProductDetailDto getProductDetail(String productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFound("The product with id: " + productId + " was not found")
+        );
+
+        log.info("Product detail retrieved successfully: {}", product);
+
+        logProducer.sendLog(LogEventDto.builder()
+                .level("INFO")
+                .serviceName("Product detail retrieval")
+                .message("Product detail retrieved successfully: " + product.getName())
+                .timestamp(LocalDateTime.now())
+                .path("/api/v1/products/" + productId)
+                .build());
+
+        return ProductDetailDto.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .category(product.getCategory())
+                .imageUrl(product.getImageUrl())
+                .isActive(product.getIsActive())
+                .build();
+    }
+
+    @Override
+    public PageResponse getProductsByIsActive(Boolean isActive, int pageNo, int pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        if (isActive == null) {
+            isActive = true;
+        }
+
+        Page<Product> products = productRepository.findByIsActive(isActive, pageable);
+
+        List<ProductByCategoryDto> productByCategoryList = products.getContent()
+                .stream()
+                .map(this::mapToProduct)
+                .toList();
+
+        return new PageResponse(
+                productByCategoryList,
+                products.getNumber(),
+                products.getSize(),
+                products.getTotalElements(),
+                products.getTotalPages(),
+                products.isLast()
+        );
+    }
+
 
     private ProductByCategoryDto mapToProduct(Product product) {
         return ProductByCategoryDto.builder()

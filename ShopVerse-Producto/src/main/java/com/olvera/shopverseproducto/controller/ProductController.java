@@ -1,9 +1,6 @@
 package com.olvera.shopverseproducto.controller;
 
-import com.olvera.shopverseproducto.dto.ErrorResponseDto;
-import com.olvera.shopverseproducto.dto.PageResponse;
-import com.olvera.shopverseproducto.dto.ProductRequestDto;
-import com.olvera.shopverseproducto.dto.ProductResponseDto;
+import com.olvera.shopverseproducto.dto.*;
 import com.olvera.shopverseproducto.service.IProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -111,4 +108,38 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @Operation(
+            summary = "Get product details",
+            description = "Fetches detailed information about a product by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product details retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @GetMapping("/productDetail/{productId}")
+    public ResponseEntity<ProductDetailDto> getProductDetail(
+            @PathVariable String productId
+    ) {
+        ProductDetailDto result = productService.getProductDetail(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Operation(
+            summary = "Get products by isActive in true",
+            description = "You can get all products activated")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "Not found product", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "Error with the server", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @GetMapping("product")
+    public ResponseEntity<PageResponse> getProductsIsActive(
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize
+    ) {
+        PageResponse result = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }

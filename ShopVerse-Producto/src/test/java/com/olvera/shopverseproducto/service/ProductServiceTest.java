@@ -3,6 +3,7 @@ package com.olvera.shopverseproducto.service;
 import com.olvera.shopverseproducto.config.LogProducer;
 import com.olvera.shopverseproducto.dto.LogEventDto;
 import com.olvera.shopverseproducto.dto.PageResponse;
+import com.olvera.shopverseproducto.dto.ProductDetailDto;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 import com.olvera.shopverseproducto.exception.ResourceAlreadyExist;
 import com.olvera.shopverseproducto.exception.ResourceNotFound;
@@ -153,4 +154,71 @@ class ProductServiceTest extends AbstractServiceTest {
         verify(productRepository).findById(productId);
         verify(productRepository, never()).save(any());
     }
+
+    @Test
+    void getProductDetail_ShouldReturnProductDetail_WhenProductExists() {
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        ProductDetailDto productDetail = productService.getProductDetail(productId);
+
+        assertNotNull(productDetail);
+        assertEquals(product.getName(), productDetail.getName());
+        assertEquals(product.getDescription(), productDetail.getDescription());
+        assertEquals(product.getPrice(), productDetail.getPrice());
+        assertEquals(product.getStock(), productDetail.getStock());
+        assertEquals(product.getCategory(), productDetail.getCategory());
+        assertEquals(product.getImageUrl(), productDetail.getImageUrl());
+
+        verify(productRepository).findById(productId);
+    }
+
+    @Test
+    void getProductDetail_ShouldThrowResourceNotFound_WhenProductDoesNotExist() {
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFound.class, () -> productService.getProductDetail(productId));
+
+        verify(productRepository).findById(productId);
+    }
+
+    @Test
+    void getProductByIsActive_InTrue_WhenThereAreMultiplePages(){
+        pageNo = 0;
+        pageSize = 1;
+
+        List<Product> products = List.of(product);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(pageNo, pageSize), 1);
+
+        when(productRepository.findByIsActive(eq(isActive), any(Pageable.class))).thenReturn(productPage);
+
+        PageResponse pageResponse = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+
+        assertEquals(1, pageResponse.getContent().size());
+        assertEquals(1, pageResponse.getTotalElements());
+        assertEquals(1, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
+    }
+
+    @Test
+    void getProductByIsActive_InFalse_WhenThereAreMultiplePages(){
+        pageNo = 0;
+        pageSize = 1;
+
+        isActive = false;
+
+        List<Product> products = List.of(product);
+        Page<Product> productPage = new PageImpl<>(products, PageRequest.of(pageNo, pageSize), 1);
+
+        when(productRepository.findByIsActive(eq(isActive), any(Pageable.class))).thenReturn(productPage);
+
+        PageResponse pageResponse = productService.getProductsByIsActive(isActive, pageNo, pageSize);
+
+        assertEquals(1, pageResponse.getContent().size());
+        assertEquals(1, pageResponse.getTotalElements());
+        assertEquals(1, pageResponse.getTotalPages());
+        assertTrue(pageResponse.isLast());
+    }
+
+
+
 }

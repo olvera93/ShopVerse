@@ -1,10 +1,7 @@
 package com.olvera.shopverseproducto.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.olvera.shopverseproducto.dto.PageResponse;
-import com.olvera.shopverseproducto.dto.ProductByCategoryDto;
-import com.olvera.shopverseproducto.dto.ProductRequestDto;
-import com.olvera.shopverseproducto.dto.ProductResponseDto;
+import com.olvera.shopverseproducto.dto.*;
 import com.olvera.shopverseproducto.service.IProductService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -148,6 +145,36 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusMsg").value("Product was deactivated successfully!!"))
                 .andExpect(jsonPath("$.statusCode").value("200"));
+    }
+
+    @Test
+    void shouldReturnProductDetail_WhenProductExists() throws Exception {
+        String productId = "12345";
+
+        ProductDetailDto responseDto = ProductDetailDto.builder()
+                .productId(productId)
+                .name("Test Product")
+                .description("This is a test product")
+                .price(BigDecimal.valueOf(99.99))
+                .stock(100)
+                .category("Electronics")
+                .imageUrl("http://example.com/image.jpg")
+                .isActive(true)
+                .build();
+
+        when(productService.getProductDetail(productId)).thenReturn(responseDto);
+
+        mockMvc.perform(get("/api/v1/productDetail/{productId}", productId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productId").value(productId))
+                .andExpect(jsonPath("$.name").value("Test Product"))
+                .andExpect(jsonPath("$.description").value("This is a test product"))
+                .andExpect(jsonPath("$.price").value(99.99))
+                .andExpect(jsonPath("$.stock").value(100))
+                .andExpect(jsonPath("$.category").value("Electronics"))
+                .andExpect(jsonPath("$.imageUrl").value("http://example.com/image.jpg"))
+                .andExpect(jsonPath("$.isActive").value(true));
+
     }
 
 
