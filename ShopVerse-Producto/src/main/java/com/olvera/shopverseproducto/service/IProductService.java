@@ -1,6 +1,7 @@
 package com.olvera.shopverseproducto.service;
 
 import com.olvera.shopverseproducto.dto.PageResponse;
+import com.olvera.shopverseproducto.dto.ProductDetailDto;
 import com.olvera.shopverseproducto.dto.ProductRequestDto;
 import com.olvera.shopverseproducto.dto.ProductResponseDto;
 
@@ -13,5 +14,9 @@ public interface IProductService {
     ProductResponseDto updateProduct(String productId, ProductRequestDto requestDto);
 
     ProductResponseDto deactivateProduct(String productId);
+
+    ProductDetailDto getProductDetail(String productId);
+
+    PageResponse getProductsByIsActive(Boolean isActive, int pageNo, int pageSize);
 
 }
